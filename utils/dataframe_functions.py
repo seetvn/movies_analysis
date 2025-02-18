@@ -14,7 +14,7 @@ def generate_movies_xlsx_str(verbose=False) -> Union[pd.DataFrame,pd.DataFrame]:
         for relevant_attribute in relevant_attributes:
             xlsx_dict[relevant_attribute].append(movie_info[relevant_attribute])
     df = pd.DataFrame(xlsx_dict)
-    df.to_excel("/home/seetvn/random_projects/ekimetrics/data/movies_unformatted.xlsx",index=False)
+    df.to_excel("/home/seetvn/random_projects/ekimetrics/data/unformatted/movies_unformatted.xlsx",index=False)
     return df
 
 def format_df(dataframe: pd.DataFrame,verbose=False) ->pd.DataFrame:
@@ -62,7 +62,7 @@ def refactor_valid_NaN_boxoffice_values(dataframe: pd.DataFrame,verbose=False)->
     return dataframe
     
 def generate_movies_xlsx(verbose=False) -> pd.DataFrame:
-    final_file_path = '/home/seetvn/random_projects/ekimetrics/data/movies_formatted.xlsx'
+    final_file_path = '/home/seetvn/random_projects/ekimetrics/data/formatted/movies_formatted.xlsx'
 
     # retrieve as text data into xlsx
     data = generate_movies_xlsx_str(verbose=verbose)
