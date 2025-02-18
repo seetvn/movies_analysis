@@ -29,7 +29,7 @@ def format_df(dataframe: pd.DataFrame,verbose=False) ->pd.DataFrame:
     dataframe["Runtime"] = pd.to_numeric(dataframe["Runtime"].str.replace("min",""), errors="coerce")
 
     if verbose:
-        print("The columns: 'imdbVotes' , 'BoxOffice', 'Runtime' has been formatted correctly")
+        print("The columns: 'imdbVotes' , 'BoxOffice', 'Runtime' has been formatted \n")
 
     return dataframe
 
@@ -46,7 +46,7 @@ def drop_invalid_NaN_boxoffice_values(dataframe: pd.DataFrame,verbose=False)-> p
 
     if verbose:
         current_shape = dataframe.shape[0]
-        print(f" The dataframe previously had {prev_shape} rows and now has {current_shape} rows after dropping invalid NaN boxoffice rows")
+        print(f"The dataframe previously had {prev_shape} rows and now has {current_shape} rows after dropping invalid NaN boxoffice rows \n")
     return dataframe
 
 def refactor_valid_NaN_boxoffice_values(dataframe: pd.DataFrame,verbose=False)-> pd.DataFrame:
@@ -61,6 +61,30 @@ def refactor_valid_NaN_boxoffice_values(dataframe: pd.DataFrame,verbose=False)->
             dataframe.loc[(dataframe["Rated"] == rated_value) & (dataframe["BoxOffice"].isna()), "BoxOffice"] = mean_value
     return dataframe
     
+def generate_movies_xlsx(verbose=False) -> pd.DataFrame:
+    final_file_path = '/home/seetvn/random_projects/ekimetrics/data/movies_formatted.xlsx'
 
-# my_df = generate_movies_xlsx_str(verbose=True)
-# print(my_df.head())
+    # retrieve as text data into xlsx
+    data = generate_movies_xlsx_str(verbose=verbose)
+    if verbose:
+        print(" STEP 1: === excel with text values have been generated === \n\n")
+    
+    # format to turn into numerical data
+    data = format_df(data,verbose=verbose)
+    if verbose:
+        print(" STEP 2: ===  text values have been formatted into numerical data  ===\n\n")
+
+    # drop NaN values
+    data = drop_invalid_NaN_boxoffice_values(data,verbose=verbose)
+    if verbose:
+        print(" STEP 3: ===  Invalid NaN values dropped  === \n\n")
+
+    # refactor valid NaN values
+    data = refactor_valid_NaN_boxoffice_values(data,verbose=verbose)
+    if verbose:
+        print(" STEP 4: ===  Valid NaN values refactored  ===\n\n")
+    
+    # turn into xlsx
+    data.to_excel(final_file_path,index=False)
+    print(" === NEW EXCEL FILE GENERATED ===")
+    return data
