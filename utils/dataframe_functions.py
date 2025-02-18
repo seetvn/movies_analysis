@@ -90,7 +90,11 @@ def generate_movies_xlsx(verbose=False) -> pd.DataFrame:
     return data
 
 def generate_one_hot_encodings_df(dataframe: pd.DataFrame) -> pd.DataFrame:
+    """
+    creates one hot encoding df
+    meant for genre analysis
+    """
     df_encoded = dataframe["Genre"].str.get_dummies(sep=",")
-    one_hot_encodings_df = pd.concat([dataframe['Title'],df_encoded,dataframe['BoxOffice']],axis=1)
+    one_hot_encodings_df = pd.concat([dataframe['Title'],df_encoded,dataframe['imdbRating'],dataframe['BoxOffice']],axis=1)
     one_hot_encodings_df.to_excel("/home/seetvn/random_projects/ekimetrics/data/formatted/movies_one_hot_encodings.xlsx",index=False)
     return one_hot_encodings_df
