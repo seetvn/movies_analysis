@@ -88,3 +88,9 @@ def generate_movies_xlsx(verbose=False) -> pd.DataFrame:
     data.to_excel(final_file_path,index=False)
     print(" === NEW EXCEL FILE GENERATED ===")
     return data
+
+def generate_one_hot_encodings_df(dataframe: pd.DataFrame) -> pd.DataFrame:
+    df_encoded = dataframe["Genre"].str.get_dummies(sep=",")
+    one_hot_encodings_df = pd.concat([dataframe['Title'],df_encoded,dataframe['BoxOffice']],axis=1)
+    one_hot_encodings_df.to_excel("/home/seetvn/random_projects/ekimetrics/data/formatted/movies_one_hot_encodings.xlsx",index=False)
+    return one_hot_encodings_df
