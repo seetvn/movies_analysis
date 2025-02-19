@@ -27,9 +27,12 @@ def format_df(dataframe: pd.DataFrame,verbose=False) ->pd.DataFrame:
     dataframe["BoxOffice"] = pd.to_numeric(dataframe["BoxOffice"].str.replace("[$,]","",regex=True), errors="coerce")
     # refactor Runtime
     dataframe["Runtime"] = pd.to_numeric(dataframe["Runtime"].str.replace("min",""), errors="coerce")
+    # + replace Not Rated with Unrated
+    dataframe["Rated"] = dataframe["Rated"].replace("Not Rated","Unrated")
+    
 
     if verbose:
-        print("The columns: 'imdbVotes' , 'BoxOffice', 'Runtime' has been formatted \n")
+        print("The columns: 'imdbVotes' , 'BoxOffice', 'Runtime', 'Rated' have been formatted \n")
 
     return dataframe
 
@@ -89,12 +92,22 @@ def generate_movies_xlsx(verbose=False) -> pd.DataFrame:
     print(" === NEW EXCEL FILE GENERATED ===")
     return data
 
-def generate_genre_one_hot_encodings_df(dataframe: pd.DataFrame) -> pd.DataFrame:
+def generate_one_hot_encodings_df(dataframe: pd.DataFrame) -> pd.DataFrame:
+    # TODO (IN PROG): refactor to add genres
     """
     creates one hot encoding df
-    meant for genre analysis
+    meant for genre and rated analysis
     """
-    df_encoded = dataframe["Genre"].str.get_dummies(sep=", ")
-    one_hot_encodings_df = pd.concat([dataframe['Title'],df_encoded,dataframe['imdbRating'],dataframe['BoxOffice']],axis=1)
-    one_hot_encodings_df.to_excel("/home/seetvn/random_projects/ekimetrics/data/formatted/movies_genre_one_hot_encodings.xlsx",index=False)
+    # Genre
+    genre_df_encoded = dataframe["Genre"].str.get_dummies(sep=", ")
+    dataframe["Rated"] = dataframe["Rated"].fillna("Unrated")
+    #Rated
+    unique_rated_values = dataframe["Rated"].unique()
+    # Create a new DataFrame for one-hot encoding for rated
+    ratings_one_hot_df = pd.DataFrame(index=dataframe.index)
+    # Populate the new DataFrame with one-hot encoded columns
+    for rated_value in unique_rated_values:
+        ratings_one_hot_df[rated_value] = (dataframe["Rated"] == rated_value).astype(int)
+    one_hot_encodings_df = pd.concat([dataframe['Title'],genre_df_encoded,dataframe['imdbRating'],dataframe['BoxOffice'],ratings_one_hot_df],axis=1)
+    one_hot_encodings_df.to_excel("/home/seetvn/random_projects/ekimetrics/data/formatted/movies_one_hot_encodings.xlsx",index=False)
     return one_hot_encodings_df
