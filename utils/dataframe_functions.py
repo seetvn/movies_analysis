@@ -112,7 +112,7 @@ def generate_one_hot_encodings_df(dataframe: pd.DataFrame) -> pd.DataFrame:
     # Populate the new DataFrame with one-hot encoded columns
     for rated_value in unique_rated_values:
         ratings_one_hot_df[rated_value] = (dataframe["Rated"] == rated_value).astype(int)
-    one_hot_encodings_df = pd.concat([dataframe['Title'],genre_df_encoded,dataframe['imdbRating'],dataframe['BoxOffice'],dataframe['Search Trend'],ratings_one_hot_df],axis=1)
+    one_hot_encodings_df = pd.concat([dataframe['Title'],genre_df_encoded,dataframe['imdbRating'],dataframe['BoxOffice'],dataframe['Search Trend'],dataframe['Year'],ratings_one_hot_df],axis=1)
     one_hot_encodings_df.to_excel("/home/seetvn/random_projects/ekimetrics/data/formatted/movies_one_hot_encodings.xlsx",index=False)
 
     return one_hot_encodings_df
