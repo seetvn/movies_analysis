@@ -69,7 +69,6 @@ def refactor_valid_NaN_boxoffice_values(dataframe: pd.DataFrame,verbose=False)->
     return dataframe
     
 def generate_movies_xlsx(verbose=False) -> pd.DataFrame:
-    final_file_path = '/home/seetvn/random_projects/ekimetrics/data/formatted/movies_formatted.xlsx'
 
     # retrieve as text data into xlsx
     data = generate_movies_xlsx_str(verbose=verbose)
@@ -91,9 +90,6 @@ def generate_movies_xlsx(verbose=False) -> pd.DataFrame:
     if verbose:
         print(" STEP 4: ===  Valid NaN values refactored  ===\n\n")
     
-    # turn into xlsx
-    data.to_excel(final_file_path,index=False)
-    print(" === NEW EXCEL FILE GENERATED ===")
     return data
 
 def generate_one_hot_encodings_df(dataframe: pd.DataFrame) -> pd.DataFrame:
@@ -126,7 +122,7 @@ def fetch_trends_for_year_grouped(df: pd.DataFrame,verbose = False) -> pd.DataFr
     # Initialize Pytrends
     pytrends = TrendReq(hl="en-US", tz=360, timeout=(10, 25), retries=3, backoff_factor=0.1)
 
-    print(" === Preparing to add new column: 'Search Trend'  === \n \n")
+    print(" ===  STEP 5: Preparing to add new column: 'Search Trend'  === \n \n")
     movie_popularity = {}
     movie_list = regroup_for_pytrends(df)
     for year, movies in movie_list:
@@ -160,7 +156,6 @@ def fetch_trends_for_year_grouped(df: pd.DataFrame,verbose = False) -> pd.DataFr
     if verbose:
         print(" == Relative Search Trends have been added to movies_formatted.xlsx == \n \n")
     return df
-
 
 # ---- HELPER FUNCTIONS BELOW ----------
 
