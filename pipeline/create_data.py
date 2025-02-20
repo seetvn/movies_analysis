@@ -8,8 +8,16 @@ args = parser.parse_args()
 
 # create_exclsx => pytrends to get trends => create hot encodings
 if __name__ == "__main__":
+    # creates df without search trends
     movies_df_without_trends = generate_movies_xlsx(verbose=args.verbose)
-    movies_df_with_trends = fetch_trends_for_year_grouped(movies_df_without_trends)
-    generate_one_hot_encodings_df(movies_df_with_trends)
-    
 
+    # adds search trend later on with pytrend
+    movies_df_with_trends = fetch_trends_for_year_grouped(movies_df_without_trends)
+    
+    # creates hot encoding
+    hot_encodings_df = generate_one_hot_encodings_df(movies_df_with_trends)
+
+    # save in backupdata
+    movies_df_with_trends.to_excel("/home/seetvn/random_projects/ekimetrics/backup_data/data/formatted/movies_formatted.xlsx")
+    hot_encodings_df.to_excel("/home/seetvn/random_projects/ekimetrics/backup_data/data/formatted/movies_one_hot_encodings.xlsx")
+    
