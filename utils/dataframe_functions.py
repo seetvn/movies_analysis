@@ -1,12 +1,10 @@
-from api_calls.omdb_api import call_ombd_api,get_relevant_attributes
+from .api_calls.omdb_api import call_ombd_api,get_relevant_attributes
 from pytrends.request import TrendReq
 import pandas as pd
 import time
 import random
 from typing import Union,List
 
-# Initialize Pytrends
-pytrends = TrendReq(hl="en-US", tz=360, timeout=(10, 25), retries=3, backoff_factor=0.1)
 
 #TODO: add more films to movies.xlsx
 def generate_movies_xlsx_str(verbose=False) -> Union[pd.DataFrame,pd.DataFrame]:
@@ -51,6 +49,7 @@ def drop_invalid_NaN_boxoffice_values(dataframe: pd.DataFrame,verbose=False)-> p
     dataframe = dataframe.drop(dataframe[(dataframe["BoxOffice"].isna()) & (dataframe["imdbVotes"] < 10000)].index)
     dataframe = dataframe.drop(dataframe[(dataframe["BoxOffice"].isna()) & (dataframe["Rated"].isin(['TV-14', 'TV-MA', 'TV-PG']))].index)
     dataframe = dataframe.drop(dataframe[(dataframe["BoxOffice"].isna()) & (dataframe["Rated"].isna())].index)
+    dataframe = dataframe.drop(dataframe[(dataframe["BoxOffice"].isna()) & (dataframe["Genre"] == 'Documentary')].index)
 
     if verbose:
         current_shape = dataframe.shape[0]
@@ -118,11 +117,16 @@ def generate_one_hot_encodings_df(dataframe: pd.DataFrame) -> pd.DataFrame:
     return one_hot_encodings_df
 
 
-def fetch_trends_for_year_grouped(df: pd.DataFrame) -> pd.DataFrame:
+def fetch_trends_for_year_grouped(df: pd.DataFrame,verbose = False) -> pd.DataFrame:
     """
     Fetches the trend for each film relative
     to the rest that were released in the same year
     """
+    
+    # Initialize Pytrends
+    pytrends = TrendReq(hl="en-US", tz=360, timeout=(10, 25), retries=3, backoff_factor=0.1)
+
+    print(" === Preparing to add new column: 'Search Trend'  === \n \n")
     movie_popularity = {}
     movie_list = regroup_for_pytrends(df)
     for year, movies in movie_list:
@@ -153,16 +157,22 @@ def fetch_trends_for_year_grouped(df: pd.DataFrame) -> pd.DataFrame:
     # Add the search interest to the original DataFrame
     df["Search Trend"] = df["Title"].map(movie_popularity)
     df.to_excel("/home/seetvn/random_projects/ekimetrics/data/formatted/movies_formatted.xlsx",index=False)
+    if verbose:
+        print(" == Relative Search Trends have been added to movies_formatted.xlsx == \n \n")
     return df
 
+
+# ---- HELPER FUNCTIONS BELOW ----------
+
 # HELPER Functions
-def regroup_for_pytrends(df: pd.DataFrame)-> List:
+def regroup_for_pytrends(df: pd.DataFrame,verbose =  False)-> List:
     """
     Breaks down big lists of movies into smaller
     chunks of max length 3 to allow PyTrend to
     return less errors
     """
-
+    if verbose:
+        print('=== Dataframe will be regrouped and readjusted for PyTrend === \n \n ')
     # Group movies by release year
     grouped_movies = df.groupby("Year")["Title"].apply(list)
     new_list = []
