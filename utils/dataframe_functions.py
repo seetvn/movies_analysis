@@ -7,7 +7,7 @@ from typing import Union,List
 
 
 #TODO: add more films to movies.xlsx
-def generate_movies_xlsx_str(verbose=False) -> Union[pd.DataFrame,pd.DataFrame]:
+def generate_movies_xlsx_str(file_path:str = None,file_name:str = None,verbose=False) -> Union[pd.DataFrame,pd.DataFrame]:
     data = pd.read_excel('/home/seetvn/random_projects/ekimetrics/data/movies.xlsx')
     xlsx_dict = {'Title':[],'Year':[],'Rated':[],'imdbVotes':[],'imdbRating':[],'Runtime':[], 'Genre':[], 'BoxOffice':[]}
     relevant_attributes = get_relevant_attributes()
@@ -19,7 +19,9 @@ def generate_movies_xlsx_str(verbose=False) -> Union[pd.DataFrame,pd.DataFrame]:
         for relevant_attribute in relevant_attributes:
             xlsx_dict[relevant_attribute].append(movie_info[relevant_attribute])
     df = pd.DataFrame(xlsx_dict)
-    df.to_excel("/home/seetvn/random_projects/ekimetrics/data/unformatted/movies_unformatted.xlsx",index=False)
+    if file_path and file_name:
+        final_path = file_path + file_name
+        df.to_excel(final_path,index=False)
     return df
 
 def format_df(dataframe: pd.DataFrame,verbose=False) ->pd.DataFrame:
@@ -68,7 +70,7 @@ def refactor_valid_NaN_boxoffice_values(dataframe: pd.DataFrame,verbose=False)->
             dataframe.loc[(dataframe["Rated"] == rated_value) & (dataframe["BoxOffice"].isna()), "BoxOffice"] = mean_value
     return dataframe
     
-def generate_movies_xlsx(verbose=False) -> pd.DataFrame:
+def generate_movies_xlsx(verbose=False,file_path:str = None,file_name:str = None) -> pd.DataFrame:
 
     # retrieve as text data into xlsx
     data = generate_movies_xlsx_str(verbose=verbose)
@@ -89,10 +91,13 @@ def generate_movies_xlsx(verbose=False) -> pd.DataFrame:
     data = refactor_valid_NaN_boxoffice_values(data,verbose=verbose)
     if verbose:
         print(" STEP 4: ===  Valid NaN values refactored  ===\n\n")
-    
+    if file_path and file_name:
+        final_path = file_path + file_name
+        data.to_excel(final_path,index=False)
+        print(" == EXCEL CREATED AND SAVED ==")
     return data
 
-def generate_one_hot_encodings_df(dataframe: pd.DataFrame) -> pd.DataFrame:
+def generate_one_hot_encodings_df(dataframe: pd.DataFrame,file_path:str=None,file_name:str=None) -> pd.DataFrame:
     """
     creates one hot encoding df
     meant for genre and rated analysis
@@ -107,13 +112,16 @@ def generate_one_hot_encodings_df(dataframe: pd.DataFrame) -> pd.DataFrame:
     # Populate the new DataFrame with one-hot encoded columns
     for rated_value in unique_rated_values:
         ratings_one_hot_df[rated_value] = (dataframe["Rated"] == rated_value).astype(int)
+    
     one_hot_encodings_df = pd.concat([dataframe['Title'],genre_df_encoded,dataframe['imdbRating'],dataframe['BoxOffice'],dataframe['Search Trend'],dataframe['Year'],ratings_one_hot_df],axis=1)
-    one_hot_encodings_df.to_excel("/home/seetvn/random_projects/ekimetrics/data/formatted/movies_one_hot_encodings.xlsx",index=False)
-
+    if file_path and file_name:
+        final_path = file_path + file_name
+        one_hot_encodings_df.to_excel(final_path,index=False)
+        print( ' === EXCEL of hot encodings created and saved ===')
     return one_hot_encodings_df
 
 
-def fetch_trends_for_year_grouped(df: pd.DataFrame,verbose = False) -> pd.DataFrame:
+def fetch_trends_for_year_grouped(df: pd.DataFrame,file_path:str=None,file_name:str=None,verbose=False) -> pd.DataFrame:
     """
     Fetches the trend for each film relative
     to the rest that were released in the same year
@@ -152,7 +160,9 @@ def fetch_trends_for_year_grouped(df: pd.DataFrame,verbose = False) -> pd.DataFr
 
     # Add the search interest to the original DataFrame
     df["Search Trend"] = df["Title"].map(movie_popularity)
-    df.to_excel("/home/seetvn/random_projects/ekimetrics/data/formatted/movies_formatted.xlsx",index=False)
+    if file_path and file_name:
+        final_path = file_path + file_name
+        df.to_excel(final_path,index=False)
     if verbose:
         print(" == Relative Search Trends have been added to movies_formatted.xlsx == \n \n")
     return df
